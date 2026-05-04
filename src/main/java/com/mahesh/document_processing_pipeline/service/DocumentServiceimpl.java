@@ -35,18 +35,31 @@ public class DocumentServiceimpl implements DocumentService {
         return response;
 
     }
+    @Autowired
+    private TextExtractionService textExtractionService;
+    @Autowired
+    private AIService aiService;
+
 
     private void processDocument(ProcessingDocument doc, MultipartFile file) {
         try {
             doc.setStatus("PROCESSING");
             repository.save(doc);
-            String content = new String(file.getBytes());
-            doc.setExtractedText(content);
+            //String content = new String(file.getBytes());
+           // doc.setExtractedText(content);
+            String extractedText = textExtractionService.extractText(file);
+            doc.setExtractedText(extractedText);
+
+            String aiResult = aiService.generateSummaryAndTag(extractedText);
+            doc.setAiSummary(aiResult);
+
             doc.setStatus("COMPLETED");
             doc.setUpdatedAt(LocalDateTime.now());
 
         } catch (Exception e) {
             doc.setStatus("FAILED");
+            doc.setUpdatedAt(LocalDateTime.now());
+
         }
         repository.save(doc);
     }

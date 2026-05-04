@@ -4,7 +4,6 @@ import com.mahesh.document_processing_pipeline.dto.DocumentResponseDTO;
 import com.mahesh.document_processing_pipeline.entity.ProcessingDocument;
 import com.mahesh.document_processing_pipeline.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 @RestController
