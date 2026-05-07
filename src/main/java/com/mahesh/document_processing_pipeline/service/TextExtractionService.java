@@ -15,7 +15,17 @@ public class TextExtractionService {
 
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
             PDFTextStripper stripper = new PDFTextStripper();
-            return stripper.getText(document);
+            String text = stripper.getText(document);
+
+
+            if (text == null || text.trim().isEmpty()) {
+                throw new RuntimeException("Extracted text is empty (possibly scanned PDF)");
+            }
+
+            return text;
+
+
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to extract text from PDF");
         }
