@@ -2,34 +2,41 @@ package com.mahesh.document_processing_pipeline.service;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 
 @Service
 public class TextExtractionService {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(TextExtractionService.class);
 
-    public String extractText(MultipartFile file) {
+    public String extractText(String filePath) {
 
+        try {
 
-        try (PDDocument document = PDDocument.load(file.getInputStream())) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            String text = stripper.getText(document);
+            File file = new File(filePath);
 
+            log.info("Processing file: {}", file.getAbsolutePath());
 
-            if (text == null || text.trim().isEmpty()) {
-                throw new RuntimeException("Extracted text is empty (possibly scanned PDF)");
+            log.info("File exists: {}", file.exists());
+
+            try (PDDocument document = PDDocument.load(file)) {
+
+                PDFTextStripper stripper = new PDFTextStripper();
+
+                return stripper.getText(document);
             }
 
-            return text;
-
-
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to extract text from PDF");
+
+            log.error("Error extracting PDF text", e);
+
+            throw new RuntimeException(
+                    "Failed to extract text from PDF", e);
         }
     }
-
-
 }

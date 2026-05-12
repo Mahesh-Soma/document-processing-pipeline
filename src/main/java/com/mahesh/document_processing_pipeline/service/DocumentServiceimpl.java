@@ -10,98 +10,71 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDateTime;
  @Slf4j
 @Service
 public class DocumentServiceimpl implements DocumentService {
-     private static final Logger log = LoggerFactory.getLogger(DocumentServiceimpl.class);
+     //private static final Logger log = LoggerFactory.getLogger(DocumentServiceimpl.class);
 
     @Autowired
     private DocumentRepository repository;
+     @Autowired
+     private DocumentProcessorService documentProcessorService;
 
     @Override
     public DocumentResponseDTO uploadDocument(MultipartFile file) {
-
-        ProcessingDocument doc = new ProcessingDocument();
-        doc.setFileName(file.getOriginalFilename());
-        doc.setFileType(file.getContentType());
-        doc.setFileSize(file.getSize());
-        doc.setStatus("UPLOADED");
-        doc.setCreatedAt(LocalDateTime.now());
-        repository.save(doc);
-
-        //Trigger processing
-        processDocument(doc, file);
-
-        DocumentResponseDTO response = new DocumentResponseDTO();
-        response.setId(doc.getId());
-        response.setStatus(doc.getStatus());
-        response.setAiSummary(doc.getAiSummary());
-        response.setDocumentCategory(doc.getDocumentCategory());
-
-        return response;
-
-    }
-    @Autowired
-    private TextExtractionService textExtractionService;
-    @Autowired
-    private AIService aiService;
-
-
-    private void processDocument(ProcessingDocument doc, MultipartFile file) {
         try {
 
-            log.info("🚀 Starting processing for docId: {}", doc.getId());
+            String uploadDir = System.getProperty("user.dir") + "/uploads/";
+            File directory = new File(uploadDir);
 
-            doc.setStatus("PROCESSING");
-            repository.save(doc);
 
-            // ---------------- STEP 1: TEXT EXTRACTION ----------------
-            log.info("📄 Step 1: Extracting text for docId: {}", doc.getId());
-
-            String extractedText = textExtractionService.extractText(file);
-
-            if (extractedText == null || extractedText.isEmpty()) {
-                throw new RuntimeException("Extracted text is empty");
+            if (!directory.exists()) {
+                directory.mkdirs();
             }
 
-            log.info("✅ Text extracted. Length: {}", extractedText.length());
+            String filePath =
+                    uploadDir + System.currentTimeMillis()
+                            + "_" + file.getOriginalFilename();
 
-            doc.setExtractedText(extractedText);
+            file.transferTo(new File(filePath));
 
-            // ---------------- STEP 2: AI CALL ----------------
-            log.info("🤖 Step 2: Calling AI service for docId: {}", doc.getId());
+            ProcessingDocument doc = new ProcessingDocument();
 
-            String aiResult = aiService.generateSummaryAndTag(extractedText);
+            doc.setFileName(file.getOriginalFilename());
+            doc.setFileType(file.getContentType());
+            doc.setFileSize(file.getSize());
+            doc.setFilePath(filePath);
 
-            if (aiResult == null || aiResult.isEmpty()) {
-                throw new RuntimeException("AI result is empty");
-            }
+            doc.setStatus("QUEUED");
 
-            log.info("✅ AI response received");
-
-            doc.setAiSummary(aiResult);
-            doc.setDocumentCategory("AUTO");
-
-            // ---------------- SUCCESS ----------------
-            doc.setStatus("COMPLETED");
+            doc.setCreatedAt(LocalDateTime.now());
             doc.setUpdatedAt(LocalDateTime.now());
+
             repository.save(doc);
 
-            log.info(" Processing completed for docId: {}", doc.getId());
+            // ASYNC PROCESSING
+            documentProcessorService.processDocument(doc);
+
+            DocumentResponseDTO response = new DocumentResponseDTO();
+
+            response.setId(doc.getId());
+            response.setStatus(doc.getStatus());
+            response.setAiSummary(doc.getAiSummary());
+            response.setDocumentCategory(doc.getDocumentCategory());
+
+            return response;
 
         } catch (Exception e) {
 
-            log.error(" Processing failed for docId: {}", doc.getId(), e);
+            log.error("File upload failed", e);
 
-            doc.setStatus("FAILED");
-            doc.setUpdatedAt(LocalDateTime.now());
-            repository.save(doc);
+            throw new RuntimeException("Failed to upload document", e);
         }
-
-
-
     }
+
+
 
      public ProcessingDocument getDocument(Long id) {
          return repository.findById(id)

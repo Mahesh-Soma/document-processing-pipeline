@@ -83,8 +83,7 @@ public class AIService {
                 category = "OTHER";
             }
 
-            String summary =
-                    text.substring(0, Math.min(text.length(), 100));
+            String summary = text.substring(0, Math.min(text.length(), 100));
 
             return "SUMMARY: " + summary +
                     "\nCATEGORY: " + category;

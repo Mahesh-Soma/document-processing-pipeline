@@ -6,6 +6,7 @@ import com.mahesh.document_processing_pipeline.service.DocumentService;
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 @RestController
@@ -28,7 +29,10 @@ public class DocumentController {
         }
 
     }
-    @PostMapping("/upload")
+    @PostMapping(
+            value = "/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public DocumentResponseDTO upload(@RequestParam("file") MultipartFile file){
         return service.uploadDocument(file);
 
