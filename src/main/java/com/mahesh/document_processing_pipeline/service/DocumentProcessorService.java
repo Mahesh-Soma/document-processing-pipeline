@@ -28,7 +28,7 @@ public class DocumentProcessorService {
     public void processDocument(ProcessingDocument doc) {
         try {
 
-            Thread.sleep(10000);
+
 
             log.info(" Starting processing for docId: {}", doc.getId());
 

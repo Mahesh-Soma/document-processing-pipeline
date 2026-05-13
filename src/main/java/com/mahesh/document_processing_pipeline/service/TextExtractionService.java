@@ -1,5 +1,6 @@
 package com.mahesh.document_processing_pipeline.service;
 
+import com.mahesh.document_processing_pipeline.exception.ProcessingException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class TextExtractionService {
 
             log.error("Error extracting PDF text", e);
 
-            throw new RuntimeException(
+            throw new ProcessingException(
                     "Failed to extract text from PDF", e);
         }
     }

@@ -1,5 +1,6 @@
 package com.mahesh.document_processing_pipeline.service;
 
+import com.mahesh.document_processing_pipeline.exception.AIProcessingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -52,7 +53,7 @@ public class AIService {
                     restTemplate.postForEntity(url, entity, Map.class);
 
             if (response.getBody() == null) {
-                throw new RuntimeException("Empty response from OpenAI");
+                throw new AIProcessingException("Empty response from OpenAI");
             }
 
             Map responseBody = response.getBody();
@@ -83,7 +84,8 @@ public class AIService {
                 category = "OTHER";
             }
 
-            String summary = text.substring(0, Math.min(text.length(), 100));
+            String summary =
+                    text.substring(0, Math.min(text.length(), 100));
 
             return "SUMMARY: " + summary +
                     "\nCATEGORY: " + category;

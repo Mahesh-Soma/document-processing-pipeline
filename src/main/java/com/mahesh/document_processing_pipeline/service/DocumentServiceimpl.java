@@ -2,6 +2,9 @@ package com.mahesh.document_processing_pipeline.service;
 
 import com.mahesh.document_processing_pipeline.dto.DocumentResponseDTO;
 import com.mahesh.document_processing_pipeline.entity.ProcessingDocument;
+import com.mahesh.document_processing_pipeline.exception.DocumentNotFoundException;
+import com.mahesh.document_processing_pipeline.exception.FileValidationException;
+import com.mahesh.document_processing_pipeline.exception.ProcessingException;
 import com.mahesh.document_processing_pipeline.repository.DocumentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -25,6 +28,22 @@ public class DocumentServiceimpl implements DocumentService {
     @Override
     public DocumentResponseDTO uploadDocument(MultipartFile file) {
         try {
+            //Empty file validation
+            if (file.isEmpty()) {
+                throw new FileValidationException("Uploaded file is empty");
+            }
+
+            //file type should be pdf
+            if(!"application/pdf".equals(file.getContentType())){
+                throw new FileValidationException("only PDF files are allowed");
+            }
+            // FILE SIZE VALIDATION
+            long maxFileSize = 5 * 1024 * 1024;
+
+            if (file.getSize() > maxFileSize) {
+                throw new FileValidationException("File size exceeds 5 MB limit");
+            }
+
 
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
             File directory = new File(uploadDir);
@@ -66,11 +85,17 @@ public class DocumentServiceimpl implements DocumentService {
 
             return response;
 
-        } catch (Exception e) {
+        }
+        catch (FileValidationException e) {
+
+            throw e;
+        }
+        catch (Exception e) {
 
             log.error("File upload failed", e);
 
-            throw new RuntimeException("Failed to upload document", e);
+            throw new ProcessingException(
+                    "Internal error while uploading document", e);
         }
     }
 
@@ -78,7 +103,7 @@ public class DocumentServiceimpl implements DocumentService {
 
      public ProcessingDocument getDocument(Long id) {
          return repository.findById(id)
-                 .orElseThrow(() -> new RuntimeException("Document not found"));
+                 .orElseThrow(() -> new DocumentNotFoundException("document not found with id"+id));
      }
 }
 
