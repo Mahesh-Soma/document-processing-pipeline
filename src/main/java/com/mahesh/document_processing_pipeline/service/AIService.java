@@ -1,5 +1,6 @@
 package com.mahesh.document_processing_pipeline.service;
 
+import com.mahesh.document_processing_pipeline.dto.AIResponseDTO;
 import com.mahesh.document_processing_pipeline.exception.AIProcessingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,15 @@ public class AIService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public String generateSummaryAndTag(String text) {
+    public AIResponseDTO generateSummaryAndTag(String text) {
         System.out.println("KEY START = " + apiKey.substring(0, 10));
 
         if (text == null || text.trim().isEmpty()) {
-            return "SUMMARY: EMPTY DOCUMENT\nCATEGORY: OTHER";
+            return new AIResponseDTO(
+                    "EMPTY DOCUMENT",
+                    "OTHER"
+            );
+
         }
 
         text = text.substring(0, Math.min(text.length(), 3000));
@@ -36,10 +41,21 @@ public class AIService {
 
             Map<String, Object> request = new HashMap<>();
             request.put("model", "gpt-4.1-mini");
-
             request.put("input",
-                    "Summarize this document and classify it (invoice/resume/contract/other):\n" + text
+                    """
+                    Return response ONLY in this format:
+
+                    SUMMARY: <summary>
+                    CATEGORY: <category>
+
+                    Categories allowed:
+                    INVOICE, RESUME, CONTRACT, OTHER
+
+                    Document:
+                    """ + text
             );
+
+
 
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(apiKey);
@@ -64,7 +80,31 @@ public class AIService {
             List content = (List) firstOutput.get("content");
             Map contentItem = (Map) content.get(0);
 
-            return contentItem.get("text").toString();
+            String aiText = contentItem.get("text").toString();
+            String summary = "";
+            String category = "";
+            String[] lines = aiText.split("\n");
+
+            for(String line : lines){
+
+                if(line.startsWith("SUMMARY:")){
+                    summary = line.replace("SUMMARY:", "").trim();
+                }
+
+                if(line.startsWith("CATEGORY:")){
+                    category = line.replace("CATEGORY:", "").trim();
+                }
+            }
+
+            if(summary.isEmpty()){
+                summary = "No summary generated";
+            }
+
+            if(category.isEmpty()){
+                category = "OTHER";
+            }
+
+            return new AIResponseDTO(summary, category);
 
         } catch (Exception e) {
 
@@ -87,8 +127,7 @@ public class AIService {
             String summary =
                     text.substring(0, Math.min(text.length(), 100));
 
-            return "SUMMARY: " + summary +
-                    "\nCATEGORY: " + category;
+            return new AIResponseDTO(summary,category);
         }
 
 

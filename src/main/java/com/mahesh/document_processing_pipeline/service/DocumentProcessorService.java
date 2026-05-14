@@ -1,5 +1,6 @@
 package com.mahesh.document_processing_pipeline.service;
 
+import com.mahesh.document_processing_pipeline.dto.AIResponseDTO;
 import com.mahesh.document_processing_pipeline.entity.ProcessingDocument;
 import com.mahesh.document_processing_pipeline.repository.DocumentRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -50,16 +51,26 @@ public class DocumentProcessorService {
             // ---------------- STEP 2: AI CALL ----------------
             log.info(" Step 2: Calling AI service for docId: {}", doc.getId());
 
-            String aiResult = aiService.generateSummaryAndTag(extractedText);
+            AIResponseDTO aiResponse =
+                    aiService.generateSummaryAndTag(extractedText);
+            if (aiResponse == null ||
+                    aiResponse.getSummary() == null ||
+                    aiResponse.getSummary().isEmpty()) {
 
-            if (aiResult == null || aiResult.isEmpty()) {
-                throw new RuntimeException("AI result is empty");
+                throw new RuntimeException(
+                        "AI response is empty"
+                );
             }
+
+
+
+
+
 
             log.info("AI response received");
 
-            doc.setAiSummary(aiResult);
-            doc.setDocumentCategory("AUTO");
+            doc.setAiSummary(aiResponse.getSummary());
+            doc.setDocumentCategory(aiResponse.getCategory());
 
             // ---------------- SUCCESS ----------------
             doc.setStatus("COMPLETED");
