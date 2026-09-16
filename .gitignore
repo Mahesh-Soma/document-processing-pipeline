@@ -7,7 +7,7 @@ target/
 # Security: Ignore environment variables
 .env
 uploads/
-
+ DB_PASSWORD=Mahesh@2026
 
 
 
