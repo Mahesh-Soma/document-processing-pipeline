@@ -7,8 +7,6 @@ import com.mahesh.document_processing_pipeline.exception.FileValidationException
 import com.mahesh.document_processing_pipeline.exception.ProcessingException;
 import com.mahesh.document_processing_pipeline.repository.DocumentRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,8 +15,8 @@ import java.io.File;
 import java.time.LocalDateTime;
  @Slf4j
 @Service
-public class DocumentServiceimpl implements DocumentService {
-     //private static final Logger log = LoggerFactory.getLogger(DocumentServiceimpl.class);
+public class DocumentServiceImpl implements DocumentService {
+     //private static final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
     @Autowired
     private DocumentRepository repository;

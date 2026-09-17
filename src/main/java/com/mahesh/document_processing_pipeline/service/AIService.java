@@ -23,7 +23,7 @@ public class AIService {
     private RestTemplate restTemplate;
 
     public AIResponseDTO generateSummaryAndTag(String text) {
-        System.out.println("KEY START = " + apiKey.substring(0, 10));
+       // System.out.println("KEY START = " + apiKey.substring(0, 10));
 
         if (text == null || text.trim().isEmpty()) {
             return new AIResponseDTO(
