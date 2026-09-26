@@ -36,10 +36,10 @@ public class DocumentServiceImpl implements DocumentService {
                 throw new FileValidationException("only PDF files are allowed");
             }
             // FILE SIZE VALIDATION
-            long maxFileSize = 5 * 1024 * 1024;
+            long maxFileSize = 10 * 1024 * 1024;
 
             if (file.getSize() > maxFileSize) {
-                throw new FileValidationException("File size exceeds 5 MB limit");
+                throw new FileValidationException("File size exceeds 10 MB limit");
             }
 
 
