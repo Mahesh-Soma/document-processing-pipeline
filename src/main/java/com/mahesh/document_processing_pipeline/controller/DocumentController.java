@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/documents")
@@ -41,6 +44,11 @@ public class DocumentController {
     @GetMapping("/{id}")
     public ProcessingDocument get(@PathVariable Long id){
         return service.getDocument(id);
+
+    }
+    @GetMapping
+    public List<ProcessingDocument> getAll(){
+        return service.getAllDocuments();
     }
 
 }

@@ -13,7 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDateTime;
- @Slf4j
+import java.util.List;
+
+@Slf4j
 @Service
 public class DocumentServiceImpl implements DocumentService {
      //private static final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
@@ -103,6 +105,11 @@ public class DocumentServiceImpl implements DocumentService {
          return repository.findById(id)
                  .orElseThrow(() -> new DocumentNotFoundException("document not found with id"+id));
      }
+
+    @Override
+    public List<ProcessingDocument> getAllDocuments() {
+        return repository.findAll();
+    }
 }
 
 

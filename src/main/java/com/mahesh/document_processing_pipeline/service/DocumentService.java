@@ -5,9 +5,12 @@ import com.mahesh.document_processing_pipeline.entity.ProcessingDocument;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface DocumentService {
     DocumentResponseDTO uploadDocument(MultipartFile file);
     ProcessingDocument getDocument(Long id);
+    List<ProcessingDocument> getAllDocuments();
 
 
 }
