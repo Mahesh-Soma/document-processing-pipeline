@@ -41,14 +41,23 @@ public class DocumentController {
         return service.uploadDocument(file);
 
     }
-    @GetMapping("/{id}")
-    public ProcessingDocument get(@PathVariable Long id){
-        return service.getDocument(id);
 
+    @GetMapping("/{id}")
+    public DocumentResponseDTO get(@PathVariable Long id){
+        ProcessingDocument doc = service.getDocument(id);
+
+        DocumentResponseDTO dto = new DocumentResponseDTO();
+        dto.setId(doc.getId());
+        dto.setFileName(doc.getFileName());
+        dto.setStatus(doc.getStatus());
+        dto.setAiSummary(doc.getAiSummary());
+        dto.setDocumentCategory(doc.getDocumentCategory());
+        return dto;
     }
-    @GetMapping
+
+   /* @GetMapping
     public List<ProcessingDocument> getAll(){
         return service.getAllDocuments();
-    }
+    } */
 
 }
