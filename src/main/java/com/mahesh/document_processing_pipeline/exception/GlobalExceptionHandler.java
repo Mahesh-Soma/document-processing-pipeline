@@ -1,11 +1,12 @@
 package com.mahesh.document_processing_pipeline.exception;
+
 import com.mahesh.document_processing_pipeline.dto.ErrorResponse;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     // DOCUMENT NOT FOUND
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDocumentNotFound(
@@ -39,6 +41,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
     // AI PROCESSING ERROR
     @ExceptionHandler(AIProcessingException.class)
     public ResponseEntity<ErrorResponse> handleAIException(
@@ -54,6 +57,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error,
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     // FILE SIZE LIMIT
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxSizeException(
@@ -68,6 +72,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     // GENERAL PROCESSING ERROR
     @ExceptionHandler(ProcessingException.class)
     public ResponseEntity<ErrorResponse> handleProcessingException(
@@ -83,6 +88,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error,
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // 404 NO RESOURCE FOUND HANDLER
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResource(NoResourceFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "NOT FOUND",
+                "The requested URL does not exist"
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     // FALLBACK EXCEPTION
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(
@@ -98,9 +116,4 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error,
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-
-
-
-
 }
